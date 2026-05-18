@@ -1,0 +1,11 @@
+opencv-python
+numpy==2.0.2
+torch
+torchvision
+scikit-learn
+scikit-image
+pillow
+joblib
+lpips
+streamlit
+gradio
