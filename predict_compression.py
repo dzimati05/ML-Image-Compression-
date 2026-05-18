@@ -4,7 +4,7 @@ import torch
 import torchvision.models as models
 import torchvision.transforms as transforms
 import joblib
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 from skimage.metrics import structural_similarity as ssim
 import os
 import sys
@@ -72,8 +72,13 @@ def create_comparison_preview(input_path, output_path, preview_path="comparison_
 
     compressed = compressed.resize(original.size)
 
-    padding = 20
-    label_height = 40
+    padding = 24
+    label_height = 70
+    try:
+        label_font = ImageFont.truetype("/System/Library/Fonts/Supplemental/Arial Bold.ttf", 36)
+    except OSError:
+        label_font = ImageFont.load_default()
+
     preview_width = original.width * 2 + padding * 3
     preview_height = original.height + padding * 2 + label_height
 
@@ -82,8 +87,8 @@ def create_comparison_preview(input_path, output_path, preview_path="comparison_
 
     left_label = "Original Image"
     right_label = "Compressed Image"
-    draw.text((padding, padding), left_label, fill="black")
-    draw.text((original.width + padding * 2, padding), right_label, fill="black")
+    draw.text((padding, padding), left_label, fill="black", font=label_font)
+    draw.text((original.width + padding * 2, padding), right_label, fill="black", font=label_font)
 
     preview.paste(original, (padding, padding + label_height))
     preview.paste(compressed, (original.width + padding * 2, padding + label_height))
