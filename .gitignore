@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# macOS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+
+# Generated outputs
+compressed_output.jpg
+outputs/
+output/
+results/
+
+# Data folders
+data/
+datasets/
+images/
+
+# Optional: ignore trained model files if they can be regenerated
+# *.pkl
