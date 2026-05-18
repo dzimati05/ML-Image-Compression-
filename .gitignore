@@ -30,4 +30,4 @@ datasets/
 images/
 
 # Optional: ignore trained model files if they can be regenerated
-# *.pkl
+# *.pklis 

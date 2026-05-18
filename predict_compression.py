@@ -4,10 +4,12 @@ import torch
 import torchvision.models as models
 import torchvision.transforms as transforms
 import joblib
-from PIL import Image
+from PIL import Image, ImageDraw
 from skimage.metrics import structural_similarity as ssim
 import os
 import sys
+import subprocess
+import platform
 
 # ==================== Load Models ====================
 
@@ -56,6 +58,45 @@ def compress_image(input_path, output_path, quality):
     ssim_score, _ = ssim(img, decimg, channel_axis=2, full=True)
     
     return original_size, compressed_size, compression_ratio, ssim_score
+
+
+def create_comparison_preview(input_path, output_path, preview_path="comparison_preview.jpg"):
+    """Create and open a side-by-side original/compressed preview."""
+    original = Image.open(input_path).convert("RGB")
+    compressed = Image.open(output_path).convert("RGB")
+
+    max_height = 700
+    if original.height > max_height:
+        ratio = max_height / original.height
+        original = original.resize((int(original.width * ratio), max_height))
+
+    compressed = compressed.resize(original.size)
+
+    padding = 20
+    label_height = 40
+    preview_width = original.width * 2 + padding * 3
+    preview_height = original.height + padding * 2 + label_height
+
+    preview = Image.new("RGB", (preview_width, preview_height), "white")
+    draw = ImageDraw.Draw(preview)
+
+    left_label = "Original Image"
+    right_label = "Compressed Image"
+    draw.text((padding, padding), left_label, fill="black")
+    draw.text((original.width + padding * 2, padding), right_label, fill="black")
+
+    preview.paste(original, (padding, padding + label_height))
+    preview.paste(compressed, (original.width + padding * 2, padding + label_height))
+    preview.save(preview_path)
+
+    if platform.system() == "Darwin":
+        subprocess.run(["open", preview_path], check=False)
+    elif platform.system() == "Windows":
+        os.startfile(preview_path)
+    else:
+        subprocess.run(["xdg-open", preview_path], check=False)
+
+    return preview_path
 
 
 def predict_and_compress(input_path, output_path, uncertainty_threshold=35):
@@ -113,6 +154,9 @@ def predict_and_compress(input_path, output_path, uncertainty_threshold=35):
     
     print(f"  Output saved to:    {output_path}")
     print(f"{'='*60}")
+
+    preview_path = create_comparison_preview(input_path, output_path)
+    print(f"  Preview saved to:   {preview_path}")
     
     return final_quality, uncertainty, ssim_score
 
